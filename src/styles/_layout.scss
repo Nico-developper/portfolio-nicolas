@@ -1,0 +1,16 @@
+@use "./variables" as *;
+@use "./breakpoints" as *;
+
+.section {
+    padding: 4rem 1rem;
+
+    @include respond-until($breakpoint-md) {
+        padding: 3rem 1rem;
+    }
+}
+
+.container {
+    max-width: $max-width;
+    margin: 0 auto;
+    padding: 0 $gutter;
+}

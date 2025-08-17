@@ -1,0 +1,73 @@
+@use "../_variables" as *;
+@use "../_breakpoints" as *;
+
+.projects {
+    padding: 5rem 1rem;
+    background: $color-light;
+    color: $color-dark;
+
+    .container {
+        max-width: $max-width;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    h2 {
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .project-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+    }
+
+    .project-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+
+        &:hover {
+            transform: translateY(-5px);
+        }
+
+        .project-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 1rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tech {
+            font-style: italic;
+            color: $color-accent;
+        }
+
+        .links {
+            margin-top: 1rem;
+
+            a {
+                margin-right: 1rem;
+                text-decoration: none;
+                color: $color-primary;
+                font-weight: bold;
+
+                &:hover {
+                    color: $color-accent;
+                }
+            }
+        }
+    }
+}
