@@ -1,5 +1,5 @@
-@use "../variables" as *;
-@use "../breakpoints" as *;
+@use "../_variables" as *;
+@use "../_breakpoints" as *;
 
 .header {
     background-color: $color-light;
@@ -41,6 +41,21 @@
             &:hover {
                 color: $color-accent;
             }
+        }
+    }
+
+    .logout-btn {
+        background: none;
+        border: none;
+        color: $color-dark;
+        cursor: pointer;
+        font: inherit;
+        padding: 0;
+        transition: color 0.2s;
+
+        &:hover {
+            color: $color-primary;
+            text-decoration: underline;
         }
     }
 

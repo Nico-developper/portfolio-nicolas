@@ -1,32 +1,48 @@
 import React from "react";
 import "../styles/components/ProjectsCard.scss";
 
-export default function ProjectCard({
-    title,
-    logo,
-    description,
-    tech,
-    github,
-    demo,
-}) {
+function makePlaceholder(text, w = 400, h = 200) {
+    return `https://placehold.co/${w}x${h}?text=${encodeURIComponent(
+        text || "Projet"
+    )}`;
+}
+
+export default function ProjectCard({ project, onClick }) {
+    const initialSrc =
+        project?.coverImage && String(project.coverImage).trim()
+            ? project.coverImage
+            : makePlaceholder(project?.title);
+
+    const handleError = (e) => {
+        if (!e.target.dataset.fallback) {
+            e.target.dataset.fallback = "1";
+            e.target.src = "/placeholder-400x200.png";
+        }
+    };
+
     return (
-        <div className='project-card'>
-            <img src={logo} alt={title} className='project-logo' />
-            <h3>{title}</h3>
-            <p>{description}</p>
-            <p className='tech'>{tech}</p>
-            <div className='links'>
-                {github && (
-                    <a href={github} target='_blank' rel='noreferrer'>
-                        GitHub
-                    </a>
-                )}
-                {demo && (
-                    <a href={demo} target='_blank' rel='noreferrer'>
-                        Démo
-                    </a>
+        <article
+            className='project-card'
+            onClick={() => onClick?.(project)}
+            role={onClick ? "button" : undefined}
+            tabIndex={onClick ? 0 : undefined}
+        >
+            <img
+                src={initialSrc}
+                alt={project?.title || "Projet"}
+                loading='lazy'
+                onError={handleError}
+            />
+            <div className='project-card__footer'>
+                <h3>{project?.title}</h3>
+                {project?.tech && (
+                    <p className='tech'>
+                        {Array.isArray(project.tech)
+                            ? project.tech.join(" • ")
+                            : project.tech}
+                    </p>
                 )}
             </div>
-        </div>
+        </article>
     );
 }

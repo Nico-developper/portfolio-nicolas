@@ -12,7 +12,29 @@
         margin: 0 auto;
         padding: 0 $gutter;
     }
+    h1 {
+        text-align: center;
+        margin-bottom: 3rem;
+        font-size: 2.5rem;
+    }
 
+    .masonry-grid {
+        display: flex;
+        margin-left: -1rem; /* gutter fix */
+        width: auto;
+    }
+
+    .masonry-grid_column {
+        padding-left: 1rem;
+        background-clip: padding-box;
+    }
+
+    .projects__loading,
+    .projects__error {
+        text-align: center;
+        padding: 2rem;
+        font-size: 1.2rem;
+    }
     h2 {
         text-align: center;
         font-size: 2rem;
@@ -47,7 +69,37 @@
             }
         }
     }
+    .add-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 2px dashed #ccc;
+        background-color: #f9f9f9;
+        padding: 2rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-height: 280px;
+        text-align: center;
 
+        .plus {
+            font-size: 3rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        &:hover {
+            background-color: #eee;
+            border-color: #999;
+            transform: scale(1.02);
+        }
+    }
     @include respond-until($breakpoint-md) {
         padding: 3rem 1rem;
     }

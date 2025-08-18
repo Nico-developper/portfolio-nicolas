@@ -1,16 +1,19 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/components/Header.scss";
+import { isAuthenticated, logout } from "@/services/authService";
 
 export default function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
+    const navigate = useNavigate();
 
-    const toggleMenu = () => {
-        setMenuOpen(!menuOpen);
-    };
+    const toggleMenu = () => setMenuOpen(!menuOpen);
+    const closeMenu = () => setMenuOpen(false);
 
-    const closeMenu = () => {
-        setMenuOpen(false);
+    const handleLogout = () => {
+        logout();
+        closeMenu();
+        navigate("/login");
     };
 
     return (
@@ -40,6 +43,22 @@ export default function Header() {
                                 Contact
                             </Link>
                         </li>
+                        {isAuthenticated() ? (
+                            <li>
+                                <button
+                                    className='logout-btn'
+                                    onClick={handleLogout}
+                                >
+                                    Se déconnecter
+                                </button>
+                            </li>
+                        ) : (
+                            <li>
+                                <Link to='/login' onClick={closeMenu}>
+                                    Connexion
+                                </Link>
+                            </li>
+                        )}
                     </ul>
                 </nav>
 

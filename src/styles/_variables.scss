@@ -7,3 +7,17 @@ $color-accent: #ff6b6b;
 // 📐 Tailles
 $max-width: 1200px;
 $gutter: 1.5rem;
+
+/* Optional: plug these into your design system */
+:root {
+    --surface: #fff;
+    --text: #111;
+    --accent: #3b82f6; /* blue-ish */
+}
+
+/* You can map currentColor to a theme accent via utility classes if needed */
+.skills,
+.rating-stars,
+.progress-row {
+    color: var(--accent);
+}

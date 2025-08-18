@@ -1,5 +1,5 @@
-@use "../variables" as *;
-@use "../breakpoints" as *;
+@use "../_variables" as *;
+@use "../_breakpoints" as *;
 
 .footer {
     background-color: $color-light;
