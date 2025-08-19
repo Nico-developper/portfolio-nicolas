@@ -1,5 +1,6 @@
 @use "../_variables" as *; // optional if you have it
 @use "../_breakpoints" as *;
+@use "sass:color";
 
 .rating-stars {
     display: grid;

@@ -1,16 +1,8 @@
 import React from "react";
 import "../styles/components/ProgressBar.scss";
 
-/**
- * ProgressBar — percentage bar with accessible semantics
- * props:
- *  - label: string
- *  - value: number (0..100)
- *  - showValue: boolean (default true)
- */
 export default function ProgressBar({ label, value = 0, showValue = true }) {
     const pct = Math.max(0, Math.min(100, Number(value) || 0));
-
     return (
         <div className='progress-row'>
             <div className='progress-label'>{label}</div>
@@ -20,7 +12,7 @@ export default function ProgressBar({ label, value = 0, showValue = true }) {
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={pct}
-                aria-label={`${label}: ${pct}%`}
+                aria-label={`${label} : ${pct}%`}
             >
                 <div className='progress__bar' style={{ width: `${pct}%` }} />
             </div>

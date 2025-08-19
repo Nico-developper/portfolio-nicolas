@@ -1,15 +1,19 @@
 @use "./_variables" as *;
 @use "./_breakpoints" as *;
+@use "sass:color";
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+html {
+    scroll-behavior: smooth;
 }
-
-body {
-    font-family: "Segoe UI", sans-serif;
-    background: $color-light;
-    color: $color-dark;
-    line-height: 1.6;
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: $color-primary;
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    z-index: 100;
+    &:focus {
+        top: 0;
+    }
 }

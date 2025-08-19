@@ -1,9 +1,12 @@
 import React from "react";
-import "../styles/pages/Home.scss";
 import { Link } from "react-router-dom";
+import "../styles/pages/Home.scss";
 import nicoLogo from "../assets/nico-logo.png";
 import Skills from "../components/Skills";
 import SkillsMUI from "../components/SkillsMUI";
+import AnnouncementBar from "../components/AnnouncementBar.jsx";
+import HomeBackground from "../components/HomeBackground.jsx";
+import Seo from "../components/Seo";
 
 const competences = [
     { name: "Intégration HTML/CSS", level: 5 },
@@ -25,9 +28,10 @@ const languages = [
 
 export default function Home() {
     return (
-        <>
-            {/* Première partie (présentation) */}
-            <section className='home'>
+        <div className='home-page'>
+            <Seo title='Accueil - Nicolas Développeur Web' />
+            <HomeBackground />
+            <section className='hero container'>
                 <div className='home__content'>
                     <h1>Bienvenue, moi c'est Nicolas</h1>
                     <h2>Développeur Web Front-End</h2>
@@ -53,24 +57,11 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Deuxième partie (compétences) */}
-            <section className='skills-section'>
-                <Skills
-                    competences={competences}
-                    languages={languages}
-                    titleCompetences='Compétences clés'
-                    titleLanguages='Langages & technologies'
-                />
+            <section className='skills-section container'>
+                <Skills competences={competences} />
+                <SkillsMUI languages={languages} />
             </section>
-
-            <section className='skills-section'>
-                <SkillsMUI
-                    competences={competences}
-                    languages={languages}
-                    titleCompetences='Compétences clés'
-                    titleLanguages='Langages & technologies'
-                />
-            </section>
-        </>
+            <AnnouncementBar />
+        </div>
     );
 }

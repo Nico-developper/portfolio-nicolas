@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { X } from "lucide-react";
 import { getToken } from "@/services/authService";
 import "../styles/components/AddProjectModal.scss";
 
 export default function AddProjectModal({ onClose, onAdd }) {
-    const [form, setForm] = useState({
+    const [formData, setFormData] = useState({
         title: "",
         description: "",
         tech: "",
@@ -12,73 +13,55 @@ export default function AddProjectModal({ onClose, onAdd }) {
         demoUrl: "",
         imageFile: null,
     });
-    const [previewImage, setPreviewImage] = useState(null);
+    const [preview, setPreview] = useState(null);
     const [message, setMessage] = useState("");
 
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData((p) => ({ ...p, [name]: value }));
     };
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
+    const handleFile = (e) => {
+        const file = e.target.files?.[0];
         if (!file) return;
-
-        if (!["image/jpeg", "image/jpg", "image/png"].includes(file.type)) {
-            setMessage("Seuls les fichiers JPG/JPEG/PNG sont autorisés.");
-            return;
-        }
-
-        if (file.size > 20 * 1024 * 1024) {
-            setMessage("Le fichier dépasse 20 Mo.");
-            return;
-        }
-
-        setForm({ ...form, imageFile: file });
-        setPreviewImage(URL.createObjectURL(file));
+        if (!/\.jpe?g$/i.test(file.name))
+            return setMessage("Image invalide : uniquement .jpg / .jpeg");
+        if (file.size > 20 * 1024 * 1024)
+            return setMessage("Image trop lourde (max 20 Mo).");
+        setFormData((p) => ({ ...p, imageFile: file }));
+        setPreview(URL.createObjectURL(file));
         setMessage("");
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const token = getToken();
-
+        setMessage("");
         try {
-            const formData = new FormData();
-            formData.append("title", form.title);
-            formData.append("description", form.description);
-            formData.append(
-                "tech",
-                Array.isArray(form.tech) ? form.tech.join(",") : form.tech
-            );
-            formData.append("githubUrl", form.githubUrl);
-            formData.append("demoUrl", form.demoUrl);
-            formData.append("image", form.imageFile);
+            const token = getToken();
+            const body = new FormData();
+            body.append("title", formData.title);
+            body.append("description", formData.description);
+            body.append("tech", formData.tech);
+            if (formData.githubUrl)
+                body.append("githubUrl", formData.githubUrl);
+            if (formData.demoUrl) body.append("demoUrl", formData.demoUrl);
+            if (formData.imageFile) body.append("image", formData.imageFile);
 
             const res = await fetch(
                 `${import.meta.env.VITE_API_URL}/projects`,
                 {
                     method: "POST",
                     headers: { Authorization: `Bearer ${token}` },
-                    body: formData,
+                    body,
                 }
             );
 
-            if (!res.ok) throw new Error("Erreur lors de l'ajout");
-
+            if (!res.ok)
+                throw new Error("Erreur lors de la création du projet");
             const newProject = await res.json();
-            onAdd(newProject);
-            setMessage("Projet ajouté !");
-            setForm({
-                title: "",
-                description: "",
-                tech: "",
-                githubUrl: "",
-                demoUrl: "",
-                imageFile: null,
-            });
-            setPreviewImage(null);
+            onAdd?.(newProject);
         } catch (err) {
-            setMessage(err.message);
+            setMessage(err.message || "Erreur lors de l’ajout");
         }
     };
 
@@ -86,62 +69,106 @@ export default function AddProjectModal({ onClose, onAdd }) {
         <div className='modal-overlay' onClick={onClose}>
             <motion.div
                 className='add-project-modal'
+                initial={{ y: 40, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 30, opacity: 0 }}
+                transition={{ duration: 0.25 }}
                 onClick={(e) => e.stopPropagation()}
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                transition={{ duration: 0.3 }}
+                role='dialog'
+                aria-modal='true'
+                aria-label='Ajouter un projet'
             >
-                <button className='close-btn' onClick={onClose}>
-                    ✕
+                <button
+                    className='close-btn'
+                    onClick={onClose}
+                    aria-label='Fermer'
+                >
+                    <X />
                 </button>
-                <h2>Ajouter un projet</h2>
+                <h3>Ajouter un projet</h3>
 
-                <form onSubmit={handleSubmit}>
-                    <input
-                        name='title'
-                        placeholder='Titre'
-                        value={form.title}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        name='description'
-                        placeholder='Description'
-                        value={form.description}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        name='tech'
-                        placeholder='Technologies (séparées par des virgules)'
-                        value={form.tech}
-                        onChange={handleChange}
-                    />
-                    <input
-                        name='githubUrl'
-                        placeholder='Lien GitHub'
-                        value={form.githubUrl}
-                        onChange={handleChange}
-                    />
-                    <input
-                        name='demoUrl'
-                        placeholder='Lien Démo'
-                        value={form.demoUrl}
-                        onChange={handleChange}
-                    />
-                    <input
-                        type='file'
-                        accept='.jpg,.jpeg,.png'
-                        onChange={handleImageChange}
-                        required
-                    />
-                    {previewImage && (
-                        <div className='preview'>
-                            <img src={previewImage} alt='Aperçu' />
+                <form onSubmit={handleSubmit} className='form'>
+                    <div className='form-group'>
+                        <label htmlFor='title'>Titre</label>
+                        <input
+                            id='title'
+                            name='title'
+                            value={formData.title}
+                            onChange={handleChange}
+                            placeholder='Ex: Kasa'
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label htmlFor='description'>Description</label>
+                        <textarea
+                            id='description'
+                            name='description'
+                            value={formData.description}
+                            onChange={handleChange}
+                            placeholder='Brève description du projet'
+                            rows={4}
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label htmlFor='tech'>Technologies</label>
+                        <input
+                            id='tech'
+                            name='tech'
+                            value={formData.tech}
+                            onChange={handleChange}
+                            placeholder='React, SCSS, Node...'
+                        />
+                    </div>
+
+                    <div className='form-row'>
+                        <div className='form-group'>
+                            <label htmlFor='githubUrl'>Lien GitHub</label>
+                            <input
+                                id='githubUrl'
+                                name='githubUrl'
+                                type='url'
+                                value={formData.githubUrl}
+                                onChange={handleChange}
+                                placeholder='https://github.com/...'
+                            />
                         </div>
-                    )}
-                    <button type='submit'>Ajouter</button>
+                        <div className='form-group'>
+                            <label htmlFor='demoUrl'>Lien Démo</label>
+                            <input
+                                id='demoUrl'
+                                name='demoUrl'
+                                type='url'
+                                value={formData.demoUrl}
+                                onChange={handleChange}
+                                placeholder='https://exemple.com'
+                            />
+                        </div>
+                    </div>
+
+                    <div className='form-group'>
+                        <label htmlFor='image'>
+                            Image (jpg/jpeg, max 20 Mo)
+                        </label>
+                        <input
+                            id='image'
+                            type='file'
+                            accept='.jpg,.jpeg'
+                            onChange={handleFile}
+                        />
+                        {preview && (
+                            <img
+                                src={preview}
+                                alt='Aperçu'
+                                className='preview'
+                            />
+                        )}
+                    </div>
+
+                    <button type='submit' className='submit-btn'>
+                        Créer
+                    </button>
                     {message && <p className='message'>{message}</p>}
                 </form>
             </motion.div>

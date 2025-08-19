@@ -46,10 +46,10 @@ export default function Header() {
                         {isAuthenticated() ? (
                             <li>
                                 <button
-                                    className='logout-btn'
                                     onClick={handleLogout}
+                                    className='logout-btn'
                                 >
-                                    Se déconnecter
+                                    Déconnexion
                                 </button>
                             </li>
                         ) : (

@@ -1,44 +1,53 @@
 import { useState } from "react";
-import { login } from "@/services/authService";
 import { useNavigate } from "react-router-dom";
+import { login } from "../services/authService";
 import "../styles/components/Login.scss";
+import Seo from "./Seo";
 
 export default function Login() {
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [message, setMessage] = useState("");
-    const navigate = useNavigate();
+    const [error, setError] = useState("");
 
-    const handleLogin = async (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
+        setError("");
         try {
             await login(email, password);
-            navigate("/admin");
-        } catch (err) {
-            setMessage(err.message);
+            navigate("/projects");
+        } catch (e) {
+            setError(e?.message || "Identifiants invalides");
         }
     };
 
     return (
         <section className='login-page'>
-            <form className='login-form' onSubmit={handleLogin}>
-                <h2>Connexion</h2>
+            <Seo title='Connexion - Portfolio' />
+            <h1>Connexion</h1>
+            <form className='login-form' onSubmit={onSubmit}>
+                <label htmlFor='email'>Email</label>
                 <input
+                    id='email'
                     type='email'
-                    placeholder='Email'
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    autoComplete='email'
+                    placeholder='Adresse email'
                 />
+                <label htmlFor='password'>Mot de passe</label>
                 <input
+                    id='password'
                     type='password'
-                    placeholder='Mot de passe'
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    autoComplete='current-password'
+                    placeholder='Mot de passe'
                 />
+                {error && <p className='error'>{error}</p>}
                 <button type='submit'>Se connecter</button>
-                {message && <p className='error'>{message}</p>}
             </form>
         </section>
     );

@@ -1,14 +1,6 @@
 import React from "react";
 import "../styles/components/RatingStars.scss";
 
-/**
- * RatingStars — read‑only star rating for accessibility + pixel‑perfect display
- * props:
- *  - label: string (name of the skill)
- *  - value: number (1..5)
- *  - outOf: number (default 5)
- *  - size: number (px height of star, default 20)
- */
 export default function RatingStars({
     label,
     value = 0,
@@ -21,7 +13,7 @@ export default function RatingStars({
     return (
         <div
             className='rating-stars'
-            aria-label={`${label}: ${clamped}/${outOf}`}
+            aria-label={`${label} : ${clamped} sur ${outOf}`}
         >
             <span className='rating-label'>{label}</span>
             <div className='stars' role='img' aria-hidden='true'>

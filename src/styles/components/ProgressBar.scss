@@ -1,5 +1,6 @@
 @use "../_variables" as *; // optional if present
 @use "../_breakpoints" as *;
+@use "sass:color";
 
 .progress-row {
     display: grid;

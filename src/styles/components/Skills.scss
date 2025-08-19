@@ -1,5 +1,6 @@
 @use "../_variables" as *;
 @use "../_breakpoints" as *;
+@use "sass:color";
 
 .skills {
     --card-bg: var(--surface, #fff);

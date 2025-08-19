@@ -1,5 +1,6 @@
 @use "../_variables" as *;
 @use "../_breakpoints" as *;
+@use "sass:color";
 
 .modal-overlay {
     position: fixed;

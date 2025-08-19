@@ -1,6 +1,12 @@
 import * as React from "react";
-import Grid from "@mui/material/Grid";
-import { Box, Paper, Typography, Rating, LinearProgress } from "@mui/material";
+import {
+    Box,
+    Paper,
+    Typography,
+    Rating,
+    LinearProgress,
+    Grid,
+} from "@mui/material";
 
 export default function SkillsMUI({
     competences = [],
@@ -9,105 +15,44 @@ export default function SkillsMUI({
     titleLanguages = "Langages & technologies",
 }) {
     return (
-        <Box component='section' sx={{ my: { xs: 4, md: 6 } }}>
-            <Grid container spacing={3}>
-                {/* Colonne gauche : Compétences (étoiles) */}
-                <Grid size={{ xs: 12, md: 6 }}>
-                    <Paper elevation={1} sx={{ p: 3 }}>
-                        <Typography variant='h6' component='h3' gutterBottom>
-                            {titleCompetences}
-                        </Typography>
+        <Box component='section' sx={{ my: 6 }}>
+            <Typography variant='h4' gutterBottom>
+                {titleCompetences}
+            </Typography>
+            <Grid container spacing={2}>
+                {competences.map((c, i) => (
+                    <Grid item xs={12} sm={6} md={4} key={i}>
+                        <Paper elevation={2} sx={{ p: 2 }}>
+                            <Typography variant='subtitle1'>
+                                {c.name}
+                            </Typography>
+                            <Rating name={c.name} value={c.level} readOnly />
+                        </Paper>
+                    </Grid>
+                ))}
+            </Grid>
 
-                        <Box sx={{ display: "grid", rowGap: 1.25 }}>
-                            {competences.map((c) => (
-                                <Box
-                                    key={c.name}
-                                    sx={{
-                                        display: "grid",
-                                        gridTemplateColumns: "1fr auto",
-                                        alignItems: "center",
-                                        py: 0.5,
-                                        borderBottom: "1px solid",
-                                        borderColor: "divider",
-                                    }}
-                                >
-                                    <Typography
-                                        variant='body1'
-                                        sx={{ fontWeight: 600 }}
-                                    >
-                                        {c.name}
-                                    </Typography>
-                                    <Rating
-                                        name={`rating-${c.name}`}
-                                        value={Number(c.level) || 0}
-                                        max={5}
-                                        readOnly
-                                        aria-label={`${c.name}: ${c.level}/5`}
-                                    />
-                                </Box>
-                            ))}
-                        </Box>
-                    </Paper>
-                </Grid>
-
-                {/* Colonne droite : Langages (barres %) */}
-                <Grid size={{ xs: 12, md: 6 }}>
-                    <Paper elevation={1} sx={{ p: 3 }}>
-                        <Typography variant='h6' component='h3' gutterBottom>
-                            {titleLanguages}
-                        </Typography>
-
-                        <Box sx={{ display: "grid", rowGap: 1.25 }}>
-                            {languages.map((l) => {
-                                const pct = Math.max(
-                                    0,
-                                    Math.min(100, Number(l.value) || 0)
-                                );
-                                return (
-                                    <Box
-                                        key={l.name}
-                                        sx={{
-                                            display: "grid",
-                                            gridTemplateColumns:
-                                                "1fr minmax(160px,1fr) auto",
-                                            alignItems: "center",
-                                            columnGap: 2,
-                                            py: 0.5,
-                                        }}
-                                    >
-                                        <Typography
-                                            variant='body1'
-                                            sx={{ fontWeight: 600 }}
-                                        >
-                                            {l.name}
-                                        </Typography>
-
-                                        <LinearProgress
-                                            variant='determinate'
-                                            value={pct}
-                                            sx={{
-                                                height: 10,
-                                                borderRadius: 999,
-                                            }}
-                                            aria-label={`${l.name}: ${pct}%`}
-                                        />
-
-                                        <Typography
-                                            variant='body2'
-                                            sx={{
-                                                width: "3.5ch",
-                                                textAlign: "right",
-                                                opacity: 0.75,
-                                            }}
-                                        >
-                                            {pct}%
-                                        </Typography>
-                                    </Box>
-                                );
-                            })}
-                        </Box>
-                    </Paper>
-                </Grid>
+            <Typography variant='h4' sx={{ mt: 6 }} gutterBottom>
+                {titleLanguages}
+            </Typography>
+            <Grid container spacing={2}>
+                {languages.map((l, i) => (
+                    <Grid item xs={12} sm={6} md={4} key={i}>
+                        <Paper elevation={2} sx={{ p: 2 }}>
+                            <Typography variant='subtitle1' gutterBottom>
+                                {l.name}
+                            </Typography>
+                            <LinearProgress
+                                variant='determinate'
+                                value={l.value}
+                                sx={{ height: 10, borderRadius: 2 }}
+                            />
+                            <Typography variant='caption'>
+                                {l.value}%
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                ))}
             </Grid>
         </Box>
     );

@@ -1,33 +1,34 @@
-import {
-    BrowserRouter as Router,
-    Routes,
-    Route,
-    Navigate,
-} from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
-import Footer from "./components/Footer";
-
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Projects from "./pages/Projects";
 import Contact from "./pages/Contact";
 import Login from "./components/Login";
+import Footer from "./components/Footer";
 
-import "./styles/styles.scss";
+// Use HashRouter in production (GitHub Pages) to avoid 404 on refresh
+const Router = import.meta.env.PROD ? HashRouter : BrowserRouter;
 
 export default function App() {
-    const basename = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
-
     return (
-        <Router basename={basename}>
+        <Router
+            basename={import.meta.env.BASE_URL}
+            future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true,
+            }}
+        >
+            <a href='#main' className='skip-link'>
+                Aller au contenu
+            </a>
             <Header />
-            <main className='portfolio'>
+            <main id='main' className='portfolio' role='main'>
                 <Routes>
                     <Route path='/' element={<Home />} />
                     <Route path='/about' element={<About />} />
                     <Route path='/projects' element={<Projects />} />
                     <Route path='/contact' element={<Contact />} />
-                    <Route path='*' element={<Navigate to='/' replace />} />
                     <Route path='/login' element={<Login />} />
                 </Routes>
             </main>

@@ -1,16 +1,13 @@
 @use "./_variables" as *;
 @use "./_breakpoints" as *;
-
-.section {
-    padding: 4rem 1rem;
-
-    @include respond-until($breakpoint-md) {
-        padding: 3rem 1rem;
-    }
-}
+@use "sass:color";
 
 .container {
+    width: 100%;
     max-width: $max-width;
-    margin: 0 auto;
-    padding: 0 $gutter;
+    margin-inline: auto;
+    padding-inline: $gutter;
+}
+section {
+    padding: 2rem 0;
 }

@@ -21,37 +21,28 @@ export default function Projects() {
                 const data = await fetchProjects();
                 setItems(data);
             } catch (e) {
-                setError(e.message);
+                setError(e.message || "Erreur");
             } finally {
                 setLoading(false);
             }
         })();
     }, []);
 
-    const breakpointColumnsObj = {
-        default: 3,
-        1100: 2,
-        700: 1,
-    };
-
-    const handleOpenModal = (project) => {
-        if (!project._id) {
-            console.warn("Projet cliqué sans ID :", project);
-            return;
-        }
-        setSelectedProject(project);
-    };
-
+    const handleSelect = (project) => setSelectedProject(project);
     const handleCloseModal = () => setSelectedProject(null);
-    const handleAddClick = () => setShowAddModal(true);
 
-    const handleAddProject = (newProject) => {
-        if (newProject && newProject._id) {
-            setItems((prev) => [...prev, newProject]);
-            setShowAddModal(false);
-        } else {
-            console.warn("Projet ajouté sans ID :", newProject);
-        }
+    const handlePrev = () => {
+        if (!selectedProject) return;
+        const idx = items.findIndex((p) => p.slug === selectedProject.slug);
+        const prev = items[(idx - 1 + items.length) % items.length];
+        setSelectedProject(prev);
+    };
+
+    const handleNext = () => {
+        if (!selectedProject) return;
+        const idx = items.findIndex((p) => p.slug === selectedProject.slug);
+        const next = items[(idx + 1) % items.length];
+        setSelectedProject(next);
     };
 
     const handleDeleteProject = (deletedSlug) => {
@@ -59,86 +50,73 @@ export default function Projects() {
         setSelectedProject(null);
     };
 
-    const handleNext = () => {
-        if (!selectedProject) return;
-        const currentIndex = items.findIndex(
-            (p) => p._id === selectedProject._id
-        );
-        const nextIndex = (currentIndex + 1) % items.length;
-        setSelectedProject(items[nextIndex]);
+    const handleAddClick = () => setShowAddModal(true);
+    const handleAddProject = (newProject) => {
+        if (newProject && newProject._id) {
+            setItems((prev) => [...prev, newProject]);
+            setShowAddModal(false);
+        }
     };
 
-    const handlePrev = () => {
-        if (!selectedProject) return;
-        const currentIndex = items.findIndex(
-            (p) => p._id === selectedProject._id
-        );
-        const prevIndex = (currentIndex - 1 + items.length) % items.length;
-        setSelectedProject(items[prevIndex]);
-    };
-
-    if (loading) return <p className='projects__loading'>Chargement…</p>;
-    if (error) return <p className='projects__error'>Erreur : {error}</p>;
+    const breakpointColumnsObj = { default: 3, 1100: 2, 700: 1 };
 
     return (
         <section className='projects'>
             <div className='container'>
-                <h1>Mes projets</h1>
-                <Masonry
-                    breakpointCols={breakpointColumnsObj}
-                    className='masonry-grid'
-                    columnClassName='masonry-grid_column'
-                >
-                    {items.map((project) => (
-                        <motion.div
-                            key={project._id}
-                            initial={{ opacity: 0, y: 50 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <ProjectCard
-                                project={project}
-                                onClick={() => handleOpenModal(project)}
-                            />
-                        </motion.div>
-                    ))}
+                <h2>Mes projets</h2>
+                {loading && <p>Chargement des projets...</p>}
+                {error && <p className='projects__error'>Erreur : {error}</p>}
 
-                    {isAuthenticated() && (
-                        <motion.div
-                            key='add-project'
-                            className='project-card add-card'
-                            onClick={handleAddClick}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <div className='plus'>+</div>
-                            <p>Ajouter un projet</p>
-                        </motion.div>
+                {!loading && !error && (
+                    <Masonry
+                        breakpointCols={breakpointColumnsObj}
+                        className='masonry-grid'
+                        columnClassName='masonry-grid_column'
+                    >
+                        {items.map((project) => (
+                            <motion.div key={project._id} layout>
+                                <ProjectCard
+                                    project={project}
+                                    onClick={() => handleSelect(project)}
+                                />
+                            </motion.div>
+                        ))}
+
+                        {isAuthenticated() && (
+                            <motion.div layout>
+                                <div
+                                    className='add-card'
+                                    onClick={handleAddClick}
+                                >
+                                    <span>+</span>
+                                    <p>Ajouter un projet</p>
+                                </div>
+                            </motion.div>
+                        )}
+                    </Masonry>
+                )}
+
+                <AnimatePresence>
+                    {selectedProject && (
+                        <ProjectModal
+                            project={selectedProject}
+                            onClose={handleCloseModal}
+                            onNext={handleNext}
+                            onPrev={handlePrev}
+                            onDelete={handleDeleteProject}
+                        />
                     )}
-                </Masonry>
+                </AnimatePresence>
+
+                <AnimatePresence>
+                    {showAddModal && (
+                        <AddProjectModal
+                            onClose={() => setShowAddModal(false)}
+                            onAdd={handleAddProject}
+                        />
+                    )}
+                </AnimatePresence>
             </div>
-
-            <AnimatePresence>
-                {selectedProject && (
-                    <ProjectModal
-                        project={selectedProject}
-                        onClose={handleCloseModal}
-                        onNext={handleNext}
-                        onPrev={handlePrev}
-                        onDelete={handleDeleteProject}
-                    />
-                )}
-            </AnimatePresence>
-
-            <AnimatePresence>
-                {showAddModal && (
-                    <AddProjectModal
-                        onClose={() => setShowAddModal(false)}
-                        onAdd={handleAddProject}
-                    />
-                )}
-            </AnimatePresence>
         </section>
     );
 }

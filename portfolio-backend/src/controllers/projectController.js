@@ -1,4 +1,9 @@
 import Project from "../models/Project.js";
+import slugify from "slugify";
+
+function toSlug(title) {
+    return slugify(title, { lower: true, strict: true });
+}
 
 export async function listProjects(req, res) {
     try {
@@ -10,7 +15,7 @@ export async function listProjects(req, res) {
             createdAt: -1,
         });
         res.json(projects);
-    } catch {
+    } catch (err) {
         res.status(500).json({ error: "Erreur serveur" });
     }
 }
@@ -22,74 +27,90 @@ export async function getProject(req, res) {
         if (!project)
             return res.status(404).json({ error: "Projet introuvable" });
         res.json(project);
-    } catch {
+    } catch (err) {
         res.status(500).json({ error: "Erreur serveur" });
     }
 }
 
 export async function createProject(req, res) {
     try {
-        const { title, description, tech, githubUrl, demoUrl } = req.body;
-        const project = new Project({
+        const { title, description, tech, githubUrl, demoUrl, featured } =
+            req.body;
+        if (!title || !description) {
+            return res
+                .status(400)
+                .json({ error: "Titre et description requis" });
+        }
+        const slug = toSlug(title);
+        const payload = {
             title,
+            slug,
             description,
             tech: Array.isArray(tech)
                 ? tech
-                : typeof tech === "string" && tech.length
-                ? tech.split(",").map((t) => t.trim())
+                : tech
+                ? String(tech)
+                      .split(",")
+                      .map((t) => t.trim())
+                      .filter(Boolean)
                 : [],
             githubUrl,
             demoUrl,
-        });
-        await project.save();
-        res.status(201).json(project);
-    } catch (e) {
-        res.status(400).json({
-            error: "Création impossible",
-            details: e.message,
-        });
+            featured: featured === "true" || featured === true,
+        };
+        if (req.file) {
+            payload.coverImage = `data:${
+                req.file.mimetype
+            };base64,${req.file.buffer.toString("base64")}`;
+        }
+        const created = await Project.create(payload);
+        res.status(201).json(created);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
     }
 }
 
 export async function updateProject(req, res) {
     try {
         const { slug } = req.params;
-        const updates = {
-            ...req.body,
-        };
+        const updates = { ...req.body };
+        if (updates.title) updates.slug = toSlug(updates.title);
         if (updates.tech) {
             updates.tech = Array.isArray(updates.tech)
                 ? updates.tech
-                : updates.tech.split(",").map((t) => t.trim());
+                : String(updates.tech)
+                      .split(",")
+                      .map((t) => t.trim())
+                      .filter(Boolean);
+        }
+        if (typeof updates.featured !== "undefined") {
+            updates.featured =
+                updates.featured === "true" || updates.featured === true;
         }
         if (req.file) {
             updates.coverImage = `data:${
                 req.file.mimetype
             };base64,${req.file.buffer.toString("base64")}`;
         }
-        const project = await Project.findOneAndUpdate({ slug }, updates, {
+        const updated = await Project.findOneAndUpdate({ slug }, updates, {
             new: true,
-            runValidators: true,
         });
-        if (!project)
+        if (!updated)
             return res.status(404).json({ error: "Projet introuvable" });
-        res.json(project);
-    } catch (e) {
-        res.status(400).json({
-            error: "Mise à jour impossible",
-            details: e.message,
-        });
+        res.json(updated);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
     }
 }
 
 export async function deleteProject(req, res) {
     try {
         const { slug } = req.params;
-        const project = await Project.findOneAndDelete({ slug });
-        if (!project)
+        const deleted = await Project.findOneAndDelete({ slug });
+        if (!deleted)
             return res.status(404).json({ error: "Projet introuvable" });
         res.json({ ok: true });
-    } catch {
-        res.status(500).json({ error: "Suppression impossible" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 }

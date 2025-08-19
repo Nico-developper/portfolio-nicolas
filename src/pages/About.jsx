@@ -1,5 +1,6 @@
 import React from "react";
 import "../styles/pages/About.scss";
+import Seo from "../components/Seo";
 
 export default function About() {
     return (

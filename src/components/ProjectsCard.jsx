@@ -26,10 +26,11 @@ export default function ProjectCard({ project, onClick }) {
             onClick={() => onClick?.(project)}
             role={onClick ? "button" : undefined}
             tabIndex={onClick ? 0 : undefined}
+            aria-label={project?.title || "Projet"}
         >
             <img
                 src={initialSrc}
-                alt={project?.title || "Projet"}
+                alt={`Image du projet : ${project?.title || "Projet"}`}
                 loading='lazy'
                 onError={handleError}
             />

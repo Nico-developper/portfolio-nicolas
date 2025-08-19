@@ -8,7 +8,6 @@ $breakpoint-xl: 1440px;
         @content;
     }
 }
-
 @mixin respond-from($breakpoint) {
     @media screen and (min-width: $breakpoint) {
         @content;

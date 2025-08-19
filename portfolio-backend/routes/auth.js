@@ -1,40 +1,58 @@
-const express = require('express');
-const router = express.Router();
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+import { Router } from "express";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import rateLimit from "express-rate-limit";
+import User from "../models/User.js";
 
-// POST /api/login
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+const router = Router();
 
-  try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(401).json({ message: 'Utilisateur non trouvé' });
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) return res.status(401).json({ message: 'Mot de passe incorrect' });
-
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
-
-    res.json({ token });
-  } catch (err) {
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Trop de tentatives, réessayez plus tard." },
 });
 
-// POST /api/register
-router.post('/register', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email, password: hashedPassword });
-    await newUser.save();
-    res.status(201).json({ message: 'Utilisateur créé' });
-  } catch (err) {
-    res.status(400).json({ message: 'Erreur lors de la création de l’utilisateur' });
-  }
+router.post("/login", loginLimiter, async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        if (!email || !password)
+            return res.status(400).json({ error: "Champs requis manquants" });
+        const user = await User.findOne({ email });
+        if (!user)
+            return res.status(401).json({ error: "Utilisateur non trouvé" });
+        const valid = await bcrypt.compare(password, user.password);
+        if (!valid)
+            return res.status(401).json({ error: "Mot de passe incorrect" });
+        const token = jwt.sign(
+            { userId: user._id, email },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+        res.json({ token });
+    } catch (err) {
+        res.status(500).json({ error: "Erreur serveur" });
+    }
 });
 
-module.exports = router;
+router.post("/register", async (req, res) => {
+    if (process.env.DISABLE_REGISTER === "1") {
+        return res.status(403).json({ error: "Inscription désactivée" });
+    }
+    const { email, password } = req.body;
+    try {
+        if (!email || !password)
+            return res.status(400).json({ error: "Champs requis manquants" });
+        const existing = await User.findOne({ email });
+        if (existing)
+            return res.status(400).json({ error: "Utilisateur déjà existant" });
+        const hashed = await bcrypt.hash(password, 12);
+        await new User({ email, password: hashed }).save();
+        res.status(201).json({ message: "Utilisateur créé avec succès" });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+export default router;
