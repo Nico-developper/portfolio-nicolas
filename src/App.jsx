@@ -7,18 +7,13 @@ import Contact from "./pages/Contact";
 import Login from "./components/Login";
 import Footer from "./components/Footer";
 
-// Use HashRouter in production (GitHub Pages) to avoid 404 on refresh
-const Router = import.meta.env.PROD ? HashRouter : BrowserRouter;
+const isProd = import.meta.env.PROD;
 
 export default function App() {
+    const Router = isProd ? HashRouter : BrowserRouter;
+
     return (
-        <Router
-            basename={import.meta.env.BASE_URL}
-            future={{
-                v7_startTransition: true,
-                v7_relativeSplatPath: true,
-            }}
-        >
+        <Router>
             <a href='#main' className='skip-link'>
                 Aller au contenu
             </a>
